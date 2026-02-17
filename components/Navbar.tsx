@@ -1,71 +1,58 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 
 const Navbar: React.FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isHidden, setIsHidden] = useState(false);
-  const lastScrollY = useRef(0);
-  const rafId = useRef<number>(0);
-  const scrollThreshold = 50;
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      // Cancel any pending RAF to avoid stacking
-      if (rafId.current) {
-        cancelAnimationFrame(rafId.current);
-      }
-
-      rafId.current = requestAnimationFrame(() => {
-        const currentScrollY = window.scrollY;
-
-        setIsScrolled(currentScrollY > 20);
-
-        // Determine scroll direction
-        if (currentScrollY > lastScrollY.current + scrollThreshold) {
-          setIsHidden(true);
-          lastScrollY.current = currentScrollY;
-        } else if (currentScrollY < lastScrollY.current - 10) {
-          setIsHidden(false);
-          lastScrollY.current = currentScrollY;
-        }
-
-        // Always show at top
-        if (currentScrollY <= 20) {
-          setIsHidden(false);
-          lastScrollY.current = currentScrollY;
-        }
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      if (rafId.current) cancelAnimationFrame(rafId.current);
-    };
-  }, []);
+  const navLinks = [
+    { label: 'Home', href: '#/' },
+    { label: 'Properties', href: '#/properties' },
+    { label: 'Agents', href: '#/agents' },
+    { label: 'Market Insights', href: '#/market-insights' },
+    { label: 'Services', href: '#/services' },
+  ];
 
   return (
-    <nav className={`fixed top-4 left-4 right-4 z-50 transition-all duration-500 ease-out rounded-2xl py-4 bg-white/80 backdrop-blur-sm border border-white/20 will-change-transform ${isScrolled ? 'shadow-lg shadow-black/5' : ''} ${isHidden ? '-translate-y-[calc(100%+2rem)] opacity-0' : 'translate-y-0 opacity-100'}`}>
-      <div className="container mx-auto px-6 flex items-center justify-between">
-        <a href="#/" className="flex items-center gap-2 cursor-pointer">
-          <img src="/logo.png" alt="LuxeMap" className="h-32 w-auto object-contain -my-8" />
-        </a>
+    <>
+      {/* Hamburger Button */}
+      <button
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        className="fixed top-6 right-6 z-50 w-12 h-12 rounded-xl bg-white/90 backdrop-blur-md shadow-lg border border-black/5 flex flex-col items-center justify-center gap-1.5 hover:bg-white transition-all duration-300"
+        aria-label="Toggle menu"
+      >
+        <span className={`w-5 h-0.5 bg-[#1D1D1F] rounded-full transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+        <span className={`w-5 h-0.5 bg-[#1D1D1F] rounded-full transition-all duration-300 ${isMenuOpen ? 'opacity-0' : ''}`} />
+        <span className={`w-5 h-0.5 bg-[#1D1D1F] rounded-full transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+      </button>
 
-        <div className="hidden md:flex items-center gap-8">
-          {[
-            { label: 'Properties', href: '#/properties' },
-            { label: 'Agents', href: '#/agents' },
-            { label: 'Market Insights', href: '#/market-insights' },
-            { label: 'Services', href: '#/services' },
-          ].map((link) => (
-            <a key={link.label} href={link.href} className="text-sm font-medium text-[#1E3A5F] hover:text-[#0071E3] transition-colors duration-300 focus:outline-none focus-visible:underline underline-offset-4 focus-visible:text-[#0071E3]">
+      {/* Logo */}
+      <a href="#/" className="fixed top-4 left-6 z-50 cursor-pointer">
+        <img src="/logo.png" alt="LuxeMap" className="h-20 w-auto object-contain" />
+      </a>
+
+      {/* Fullscreen Menu Overlay */}
+      <div
+        className={`fixed inset-0 z-40 bg-[#1D1D1F] transition-all duration-500 ease-out ${
+          isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+      >
+        <nav className="h-full flex flex-col items-center justify-center gap-8">
+          {navLinks.map((link, index) => (
+            <a
+              key={link.label}
+              href={link.href}
+              onClick={() => setIsMenuOpen(false)}
+              className={`text-4xl md:text-6xl font-bold text-white hover:text-[#0071E3] transition-all duration-300 transform ${
+                isMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+              }`}
+              style={{ transitionDelay: isMenuOpen ? `${index * 100}ms` : '0ms' }}
+            >
               {link.label}
             </a>
           ))}
-        </div>
-
+        </nav>
       </div>
-    </nav>
+    </>
   );
 };
 
