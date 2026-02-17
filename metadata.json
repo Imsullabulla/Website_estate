@@ -1,0 +1,7 @@
+{
+  "name": "LuxeMap Estates",
+  "description": "A high-end real estate platform featuring dynamic map integration, glassmorphic property filters, and interactive agent contact systems with a sleek Apple-inspired aesthetic.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
